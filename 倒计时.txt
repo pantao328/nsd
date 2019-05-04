@@ -1,0 +1,109 @@
+考试环境说明 ——
+真实机(无 root 权限):foundation.groupX.example.com
+虚拟机 1(有 root 权限):system1.groupX.example.com
+虚拟机 2(有 root 权限):system2.groupX.example.com
+考试服务器(提供 DNS/YUM/认证/素材.. ..):
+server1.groupX.example.com、host.groupX.example.com
+您的系统是DNS域 .groupX.example.com 的成员，所有在DNS域 .groupX.example.com 中的系统都在子网172.25.0.0/24中
+2. 域group0.example.com内的客户端能ssh虚拟机system1和 system2
+	拒绝域my133t.org的客户端
+3. 在系统system1和 system2创建自定义命令qstat
+4. 在system1 配置端口转发
+5. system1.groupX.example.com 和 system2.groupX.example.com 之间按以下要求配置一个链路
+6. 配置system1和 system2的接口 eth0的ipv6地址
+7. 在系统 system1 和 system2 上配置邮件服务,自动路由到 server1.groupX.example.com
+   邮件显示来自于 groupX.example.com
+relayhost = [server1.groupX.example.com]
+inet_interfaces = loopback-only
+myorigin = groupX.example.com
+mynetworks = 127.0.0.0/8 [::1]/128
+mydestination =
+8. 只有 groupX.example.com 域内的客户端可以访问 common 共享
+9. 共享目录 devops 只能被 groupX.example.com 域中的客户端使用
+此共享永久挂载在 system2.groupX.example.com 上的/mnt/dev 目录
+10. 以只读的方式共享目录/public,同时只能被 groupX.example.com 域中的系统访问
+以读写的方式共享目录/protected,能被 groupX.example.com 域中的系统访问
+11. 在 system2 上挂载一个来自 system1.goup3.exmaple.com 的共享
+12. 为 http://system1.groupX.example.com 配置 Web 服务器
+为站点 http://system1.groupX.example.com 配置 TLS 加密
+在 system1 上扩展您的 web 服务器,为站点 http://www.groupX.example.com 创建一个虚拟主机
+客户端访问 http://alt.groupX.example.com:8909 可接收到动态生成的 Web 页
+19. 配置 system1 提供 iSCSI 服务,此服务只能被 system2.groupX.example.com 访问
+
+
+
+聚合链路怎么验证 teamdctl team0 state 
+客户端samba怎么查看共享及怎么验证可写  smbclient -L serverX su - student cifscreds add -u chihiro server0
+客户端nfs验证练习环境与考试环境有什么不同 showmount -e serverX
+练习环境ssh ldapuserX@desktop
+ldapuser0 （密码：kerberos)
+考试环境ssh krishna@system2
+密码未知
+
+
+背诵:   teamd.conf
+	mynetworks = 127.0.0.0/8 [::1]/128
+	echo 'data1' | mail -s 'test1' student
+	yum -y install samba-client cifs-utils
+	multiuser
+	nfs服务端下载好证书后不需要重启secure服务,习惯放在追回一步重启,而客户端下载好最好重启,以防忘记
+	vim /etc/exports
+	nfs服务端systemctl restart nfs-server         nfs-secure-server
+	nfs客户端nfs-secure
+	web那五道题只需要重启httpd       systemctl enable httpd 不要忘了
+	web安全 mod_ssl vim /etc/httpd/conf.d/ssl.conf 
+	script
+	注意>&2 验证脚本1要用四个方法
+	for name in $(cat $1) 结尾没有分号
+	create 172.25.0.11 3260   用空格隔开
+	iscsi两道题不用安装iscsi,客户端要安装iscsi-initiator-utils
+[root@desktop0 etc]# systemctl restart iscsid
+Warning: Unit file of iscsid.service changed on disk, 'systemctl daemon-reload' recommended.
+[root@desktop0 etc]# systemctl daemon-reload
+[root@desktop0 etc]# systemctl restart iscsid
+[root@desktop0 etc]# systemctl enable iscsid
+	iscsiadm --mode node -L all
+	node.conn[0].startup =automatic
+	yum -y install mariadb mariadb-server.x86_64
+[root@server0 opt]# vim /etc/my.cnf
+[root@server0 opt]# systemctl restart mariadb
+[root@server0 opt]# systemctl restart mariadb
+	mysqladmin -u root -p password 'atenorth'  格式
+	grant select on Contacts.* to Raikon@localhost identified by 'atenorth';
+	vim /etc/rc.local
+		mount -a
+		mount -a
+		mount -a
+	sec=ntlmssp
+if [ "$1" = "redhat" ] 要加双引号,标准答案if [ "$1" = "redhat" ]
+if [ $# -eq 0 ]
+if [ ! -f $1 ]
+>&2
+identified
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,282 @@
+强制启用 enforing
+域 my133t.org
+--add-source=172.34.0.0/24
+systemctl restart sshd
+别名对所有用户生效 /etc/bashrc
+alias qstat='/bin/ps -Ao pid,tt,user,fname,rsz'
+		qstat='/bin..' 没有空格
+systemctl restart firewalld
+systemctl enable firewalld
+
+ls /etc/sysconfig/network-scripts/
+]# nmcli connection 添加  类型  team(组队)
+      配置文件名  team0  网卡命名为 team0  每次开机自动启用
+      配置  链路聚合以activebackup(热备)工作的方式
+]# nmcli connection add type team-slave 
+ con-name team0-2 ifname eth2 master team0
+]# nmcli connection 添加   类型   组队-成员 
+ 配置文件名 team0-1  网卡设备名   eth1   主设备为 team0 
+nmcli connection delete team0 / team0-p1 /team0-p2 都要删
+利用nmcli命令查看网卡名称
+[root@server0 ~]# nmcli connection show
+名称         System eth0
+
+yum provides */postfix
+2:postfix-2.10.1-6.el7.x86_64 : Postfix Mail Transport Agent
+
+改完重启的服务是postfix
+
+hosts allow =
+
+smbclient -L serverX 无需密码,直接按 Enter 键确认 考试环境时是smbclient -L system1
+setsebool -P samba_export_all_rw=on 会卡一会儿
+setsebool -P samba_export_all_rw=on 第八题读写打开是因为第九题需要读写
+		用户 harry 必须能够读取共享中的内容
+		用户 kenji 必须能以读的方式访问此共享,用户 chihiro 必须能以读写的方式访问此共享
+		common 必须是可以浏览的 devops必须是可以浏览的(好像和setsebool没关系)
+	         为了实现chihiro可写
+本地用户的访问权限setfacl -m u:chihiro:rwx /devops/ 虽然要求是读写,但写的是rwx
+网络权限write list = chihiro
+
+
+[common]
+        path=/common                             前面一定要加tab 
+        hosts allow=172.25.0.0/24                path = /common也可以
+防火墙不开,smbclient -L serverX无法成功
+[common]下的不加tab键,smbclient -L serverX无法成功
+mutliuser 没有s
+password=atenorth不能加引号
+验证[root@desktop0 ~]# su - student
+上一次登录：四 5月  2 11:36:48 CST 2019pts/0 上
+[student@desktop0 ~]$ touch /mnt/dev/b.txt
+touch: cannot touch ‘/mnt/dev/b.txt’: Permission denied  因为使用的是用户kenji 作为认证
+[student@desktop0 ~]$ cifscreds add -u chihiro server0  向服务器提交用户认证凭据
+Password: 
+[student@desktop0 ~]$ touch /mnt/dev/b.txt
+[student@desktop0 ~]$ 
+这边客户端不用重启 samba-client 和 cifs-utils虽然安装了这两个包
+
+krb5.keytab 和 krb5p 注意区分
+chown ldapuserX /protected/project/  使网络用户对其可写 ls -ld /pro...此步一定注意!要看属主权限
+	[root@server0 ~]# chown lisi:tarena /nsd03
+	[root@server0 ~]# chown student /nsd03
+	[root@server0 ~]# chown :root /nsd03
+注意是对/protected加密 修改的是/protected/project 的属主
+	chown ldapuser0
+	1目录/protected 应该包含名为 project 拥有人为 krishna 的子目录
+	2用户 krishna 能够在/mnt/nfssecure/project 上创建文件
+		考试环境 krishna 练习环境 ldapuserX
+RPCNFSDARGS="-V 4"  为改写,不是解注
+
+[root@desktop0 ~]# ssh ldapuser0@desktop0
+ldapuser0@desktop0's password: 
+[ldapuser0@desktop0 ~]$touch /mnt/nfssecure/project/a.txt
+/mnt/nfssecure/project即/protected/project
+
+samba hosts allow 加/24否则能重启服务但不能挂载
+并使用用户kenji 作为认证,任何用户可以通过用户 chihiro 来临时获取写的权限
+	分别是username=kenji,password=atenorth,multiuser
+
+
+为 http://system1.groupX.example.com 配置 Web 服务器:
+ServerName 练习环境serverX.example.com
+              考试环境system1.groupX.example.com
+
+Certificate Authority 授权
+练习环境
+SSLCertificateFile /etc/pki/tls/certs/serverX.crt
+SSLCertificateKeyFile /etc/pki/tls/private/serverX.key
+SSLCACertificateFile /etc/pki/tls/certs/example-ca.crt
+考试环境
+system1.crt
+system1.key
+example-ca.crt
+
+确保 harry 用户能够在/var/www/virtual 目录下创建文件
+[root@serverX ~]# setfacl -m u:harry:rwx /var/www/virtual/
+
+从 system1 上,任何人都可以浏览 private 的内容,但是从其他系统不能访问这个目录的内容
+<Directory /var/www/html/private>
+Require ip 127.0.0.1 ::1 172.25.0.11
+</Directory>
+验证:
+	[root@server0 private]# firefox server0.example.com/private    private site
+	[root@desktop0 ~]# firefox server0.example.com/private       打不开 forbbidden
+
+[root@desktop0 ~]# ls /etc/httpd/conf.d/
+autoindex.conf  README  userdir.conf  welcome.conf
+[root@server0 ~]# ls /etc/httpd/conf.d/
+00-default.conf  autoindex.conf  ssl.conf      welcome.conf
+01-www0.conf     README          userdir.conf
+考试环境: 动态内容由名为 alt.groupX.example.com 的虚拟主机提供
+练习环境: ServerName webapp0.example.com
+[root@server0 ~]# semanage port -a -t http_port_t -p tcp 8909 会卡一下
+[root@server0 webapp0]# curl webapp0.example.com:8909
+ 
+[root@server0 opt]# cat /etc/passwd | tail -5
+
+/portals create 172.25.X.11 3260 注意是11
+systemctl restart target 无法tab
+yum -y install targetcli 无法tab
+[root@desktop0 etc]# iscsiadm --mode node -L all
+Logging in to [iface: default, target: iqn.2016-02.com.example:server0, portal: 172.25.0.11,3260] (multiple)
+Login to [iface: default, target: iqn.2016-02.com.example:server0, portal: 172.25.0.11,3260] successful.
+
+
+systemctl restart mariadb 无法tab,且会卡一会
+[root@server0 private]# mysqladmin -u root -p password 'athnorth'
+Enter password:                            直接回车
+
+[root@server0 private]# mysql -u root -patenorth 交互式改数据库成员密码
+
+
+
+第四题只能在server0做 否则判错
+systemctl is-enabled firewalld
+firewall-cmd --permanent   --permanent一定要放在第二个
+reload
+
+第五题
+删除两个配置文件ifcfg-team0
+nmcli connection
+
+172.16.0.25/24 IP打错不需要像前面再删除配置文件了
+
+poweroff后再开机再用脚本 (考试时reboot客户端服务可能会失效,考试时如果关机开机ssh连不上,先不重置环境)
+
+第六题
+ping6 */64不能加子网掩码 应该是ping6 *
+ 
+第七题
+postfix练习环境已经安装
+relayhost=[没有空格] 
+
+第十题
+考试是有明确要求的 -V 4
+
+第十一题
+v4
+/etc/   mount-a  mount -a mount -a
+
+第十二题
+/etc/http/conf.d/http.conf 
+
+第十三题
+yum list | grep ssl
+system1.groupX.example.com 等价于 server0.example.com
+
+第十五题
+127.0.0.1 ::1 172.25.0.11 都代表本机 保险起见两个ipv4都写
+
+第十六题
+02-alt 内
+	webapp0.example.com等价于alt.groupX.example.com
+semanage port -a -t http_port_t -p tcp 8909忘记时可以故意报错
+
+第十七题
+if [ "$1" = "redhat" ] 一定要双引号
+
+第二十题
+automatic
+
+
+mysql -u root -p Contacts < users.sql 非交互式
+node.conn[0].startup = automatic
+复制密码或者脚本提示信息Input file not found等时,不能把空格复制
+echo "/root/foo.sh redhat|fedora" >&2 没有分号
+127.0.0.1   ::1 不能加子网掩码,因为是IP地址
+127.0.0.0/8  [::1]/128
+pdbedit -x 用户名     #删除Samba共享帐号
+pdbedit -L  #查看当前系统,所有的Samba共享帐号
+ls -ld /devops /protected /protected/project 
+nmcli connection add con-name team0 type team ifname team0 config '{"runner": {"name": "activebackup"}}'
+"172.16.3.20/24" connection.autoconnect yes
+nmcli connection modify team0-p1 connection.autoconnect yes
+[root@server0 ~]# rpm -q postfix
+postfix-2.10.1-6.el7.x86_64
+systemctl restart postfix
+setsebool -P policy 政策
+pdbedit -a  --create create user
+smbclient -L   --list
+multiuser 不加复数
+cifscreds add -u chihiro server0
+samba服务端两个注意点: 1.setsebool -P 2.setfacl -m u:
+samba客户端三个注意点: 1.samba-client cifs-utils 2.smbclient -L   --list 3.cifscreds add -u chihiro server0
+[root@server0 ~]# rpm -q nfs
+未安装软件包 nfs   不需要也没有这个包
+[root@server0 ~]# yum -y install nfs
+nfs4-acl-tools.x86_64  nfsometer.noarch       nfstest.noarch
+[root@server0 ~]# yum provides */exports 没有nfs这个包
+	/etc/exports 这个文件是存在的
+mkdir -p    --parents
+以读写的方式共享目录 /protected  不同于  用户 ldapuser0 能以读写方式访问 /protected/project
+nfs-secure-server nfs-server 无法tab键
+showmount -e    --exports输出
+[ldapuser0@desktop0 ~]$ touch /mnt/nfssecure/project/a.txt
+[ldapuser0@desktop0 ~]$ touch /mnt/nfssecure/b.txt
+touch: 无法创建"/mnt/nfssecure/b.txt": 权限不够
+	因为[root@server0 etc]# ls -ld /protected/
+	drwxr-xr-x. 3 root root 20 5月   3 11:07 /protected/
+	[root@server0 etc]# ls -ld /protected/project/
+	drwxr-xr-x. 2 ldapuser0 root 18 5月   3 11:22 /protected/project/
+nfs服务端五个注意点: 1.不需要安装包 2.密钥下载到/etc/krb5.keytab 3.chown ldapuserX /protected/project/
+4.vim /etc/sysconfig/nfs版本要求 5.nfs-secure-server nfs-server 并且exportfs -rv
+nfs客户端三个注意点: 1.wget -O /etc/krb5.keytab 并且重启nfs-secure 2.showmount -e serverX 3.ssh ldapuserX@desktopX 只能在/protected/project下写文件
+[root@desktop0 private]# yum provides /etc/httpd/conf.d/ssl.conf
+已加载插件：langpacks
+1:mod_ssl-2.4.6-17.el7.x86_64 
+注意解注释的SSLCACertificateFile /etc/pki/tls/certs/example-ca.crt
+mkdir /var/www/html/private 不需要再改虚拟主机了
+任何人都可以浏览 private 的内容，但是从其他系统不能访问这个目录的内容 Require ip 127.0.0.1 ::1 172.25.X.11
+动态网页需要 安装mod_wsgi
+semanage port -a -t http_port_t -p tcp 8909
+	--add --type --proto
+/> ls
+o- / ..................................................................... [...]
+  o- backstores .......................................................... [...]
+  | o- block .............................................. [Storage Objects: 1]
+  | | o- iscsi_store ................. [/dev/vdb1 (3.0GiB) write-thru activated]
+  | o- fileio ............................................. [Storage Objects: 0]
+  | o- pscsi .............................................. [Storage Objects: 0]
+  | o- ramdisk ............................................ [Storage Objects: 0]
+  o- iscsi ........................................................ [Targets: 1]
+  | o- iqn.2016-02.com.example:server0 ............................... [TPGs: 1]
+  |   o- tpg1 ........................................... [no-gen-acls, no-auth]
+  |     o- acls ...................................................... [ACLs: 1]
+  |     | o- iqn.2016-02.com.example:desktop0 ................. [Mapped LUNs: 1]
+  |     |   o- mapped_lun0 ....................... [lun0 block/iscsi_store (rw)]
+  |     o- luns ...................................................... [LUNs: 1]
+  |     | o- lun0 .............................. [block/iscsi_store (/dev/vdb1)]
+  |     o- portals ................................................ [Portals: 1]
+  |       o- 172.25.0.11:3260 ............................................. [OK]
+  o- loopback ..................................................... [Targets: 0]
+包名 targetcli 重启服务名 target
+包名 iscsi-initiator-utils 不安装iscsi包
+改完客户端iqn名字后,重启iscsid
+  iscsiadm --mode discovery --type sendtargets --portal server0
+或者iscsiadm --mode discovery --type sendtargets --portal 172.25.0.11都可以
+
+两个数据库包 mariadb mariadb-server 无法tab
+重启只重启mariadb
+注意重启mariadb 的时间
+mysqladmin -u root -p password 'atenorth'不同于
+SELECT name FROM base WHERE password='solicitous';  是password='soli'或password ='soli'
+以及前面的password=atenorth
+以及这题的identified by 'atenorth';
+path = /devops 最好有空格
+[root@server0 ~]# mysql -u root -p123
+MariaDB [(none)]> show databases;
+MariaDB [test]> use mysql;     #进入mysql库
+MariaDB [mysql]> show  tables;  #查看当前库中有那些表格
+MariaDB [mysql]> desc  user;   #查看表结构
+先配root密码 再删除空密码用户
+
+
+每个包及每个重启的服务
+
+
+
+
+
+
+ 
