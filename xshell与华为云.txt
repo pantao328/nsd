@@ -1,0 +1,171 @@
+[root@pantao1 ~]# yum -y install lrzsz
+
+[root@pantao1 ~]# sz abc.txt linux下载到windows
+上传直接拖动
+
+cd /var/ftp
+createrepo ./
+
+server 0.centos.pool.ntp.org iburst
+server 1.centos.pool.ntp.org iburst
+server 2.centos.pool.ntp.org iburst
+
+[repodata]
+name=local software
+baseurl=ftp://192.168.1.18/
+enabled=1
+gpgcheck=0
+
+server ntp.myhuaweicloud.com iburst
+
+[root@ecs-8088 ~]# chronyc sources
+210 Number of sources = 1
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^* 100.125.1.251                 3   6     7     2    +22us[ +117ms] +/-  308ms
+
+
+repo id                               repo name                               status
+base/7/x86_64                         CentOS-7 - Base                         10,019
+extras/7/x86_64                       CentOS-7 - Extras                          419
+localrepo                             local software                               0
+updates/7/x86_64                      CentOS-7 - Updates                       2,236
+repolist: 12,674
+
+公司没有服务器 使用的是华为云主机 跳板机(yum源,ansible书写playbook管理)
+
+
+/usr/lib/sys
+
+
+ssh 192.168.1.254 22
+查看 - 撰写栏
+属性 - ZMODEM - 自动激活
+
+
+
+上传下载 只能是文件,文件夹需要压缩
+公有云与openstack的区别: 区域(比如华南广州)
+服务列表 - 网络 - 虚拟私有云VPC
+	创建虚拟私有云(私有云即公司内网)
+	创建子网	可用区3(机房的意思): 192.168.1.
+	拓扑图 一个subnet相当于一个交换机
+服务列表 - 计算 - 弹性云服务器 ECS 
+	计费方式 - 按需计费
+	规则(云主机类型) - 1v1G
+	镜像 - centos 7.5/7.6
+	磁盘 - 高IO
+	云服务器备份 - 实验环境不需要备份
+	虚拟私有云 - 选择之前创建的子网
+	弹性公网IP - 暂不购买
+	密码 - 123qqq...A
+	云服务器名称 - ecs-1
+	最后, 云主机购买完成
+可以登录终端,但无法连接网络
+服务列表 - 网络 - 弹性公网IP
+	带宽大小 - 1M	买带宽送IP(项目都需要用到公网IP)
+	绑定 - 选择云主机
+服务列表 - 网络 - 虚拟私有云VPC - 访问控制 - 安全组
+	创建安全组 - 出入规则都修改为全部 - 添加云主机到该安全组内
+
+
+
+企业内部源
+	一台机器下载到本地为私有yum源,其他主机通过内网访问
+www.centos.org中有华为源,华为云主机用的是华为内部源(即使该主机不能上网也可以装包)
+华为云首页 - 支持与服务 - 云上管理 - 搜索手册(如yum)
+
+
+
+第二天
+云平台上的高可用(利用vip的浮动实现keeplive)
+
+创建 按需计费 私有镜像 使用密钥对 暂不购买公网IP 两台
+
+添加IP ifconfig  eth0:1  1.100	(华为云上无法ping同这个地址)
+华为的二层交换机禁止所有未注册IP的通信
+	主机1 主机2 公司1交换机 华为二层交换机
+虚拟私有云 - 子网 - 创建虚拟IP  清空并添加1.100(即注册vip)  绑定两台高可用集群服务器
+	再绑定弹性公网IP(所有公网IP是绑定在vip上的,vip飘向哪儿就向哪儿,才能实现集群负载均衡)
+在keep2上添加eth0:1 vip ,再创建虚拟IP并绑定keep2绑定公网IP
+
+使用华为云做负载均衡:
+购买负载均衡 - 私网 - 自动分配IP地址或手动分配
+配置负载均衡 添加监听器http协议 配置后端服务器组(web最常用加权轮询算法)健康检查协议 添加后端组成员(业务端口80) 
+配置完成后 健康状态两分钟后正常	并为该均衡绑定公网IP
+
+
+nginx cip vip外网卡-dip内网卡 rip 
+lvs 不建议首选: nat模式不能超过200台
+haproxy
+	ospf + dpdk + lvs-full-nat 即dpvs+ospf
+
+数据实时同步: 
+https://jingyan.baidu.com/article/b7001fe1cc403d0e7282ddea.html
+
+139.9.193.207
+
+
+公司内部的程序代码 同步到机房代码发布服务器上
+发布: 预发布主机 环境和线上环境一样 公司内部先访问该主机,测试人员测试(出错回滚即可)
+其他主机与预发布主机同步完成线上发布
+项目上线对运维的要求: 保障业务上线时业务不能停
+
+红蓝架构(适合缺乏运维,成本高): 机房入口-负载均衡 上面集群是业务 下面集群是开发环境(用于公司内部访问测试) 切换负载均衡,两个集群可以迭代切换
+
+数据库的备份: 做一个从库,停止该从库,打tar包
+tar  /var/lib/mysql
+网页文件的备份: nfs mount cp umount 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
